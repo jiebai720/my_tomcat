@@ -1,4 +1,7 @@
-package com.bb.tomcat.ch2;
+package com.bb.tomcat.ch3;
+
+import com.bb.tomcat.ch3.http.HttpRequest;
+import com.bb.tomcat.ch3.http.HttpResponse;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -11,20 +14,20 @@ import java.net.URLStreamHandler;
 /**
  * Created by admin on 2017/7/14.
  */
-public class ServletProcessor1 {
+public class ServletProcessor {
 
-    public void process(Request request, Response response) {
+    public void process(HttpRequest request, HttpResponse response) {
 
-        String uri = request.getUri();
+        String uri = request.getRequestURI();
         String servletName = uri.substring( uri.lastIndexOf("/") + 1);
 
         URL[] urls = new URL[1];
         URLStreamHandler streamHandler =  null ;
         URLClassLoader loader = null ;
 
-        File classPath = new File( HttpServer1.CLASSESS_ROOT );
+        File classPath = new File( Constants.CLASSESS_ROOT );
         try {
-            String repository = ( new URL("file" , null , classPath.getCanonicalPath()+ File.separator) ).toString();
+            String repository =(new URL("file" , null , classPath.getCanonicalPath()+ File.separator)).toString();
             urls[0] = new URL( null , repository , streamHandler);
             loader = new URLClassLoader(urls);
         } catch (IOException e) {
@@ -32,7 +35,7 @@ public class ServletProcessor1 {
         }
         Class myClass = null ;
         try {
-            servletName = "com.bb.tomcat.ch2." + servletName ;
+            servletName = "com.bb.tomcat.ch3." + servletName ;
             myClass = loader.loadClass(servletName);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -41,6 +44,7 @@ public class ServletProcessor1 {
         try {
             servlet = (Servlet) myClass.newInstance();
             servlet.service( request , response );
+            response.finishResponse();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
